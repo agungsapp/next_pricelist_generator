@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Diskon {
+  id           Int      @id @default(autoincrement())
+  diskon       Float
+  diskonPromo  Float
+  diskonDealer Float
+  tenor        Int
+  potonganTenor Float
+  idLeasing    Int
+  idMotor      Int
+  idLokasi     Int
+  leasing      Leasing  @relation(fields: [idLeasing], references: [id])
+  motor        Motor    @relation(fields: [idMotor], references: [id])
+  kota         Kota     @relation(fields: [idLokasi], references: [id])
+}
+
+model Motor {
+  id    Int    @id
+  nama  String
+  diskon Diskon[]
+}
+
+model Leasing {
+  id    Int    @id
+  nama  String
+  diskon Diskon[]
+}
+
+model Kota {
+  id    Int    @id
+  nama  String
+  diskon Diskon[]
+}
