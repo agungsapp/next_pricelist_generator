@@ -49,7 +49,7 @@ export const saveDiskon = async (diskonData: any[]) => {
             idLokasi: idKota,
             diskon,
             diskonPromo,
-            diskonDealer: pengurangan,
+            diskonDealer: 0,
             tenor: tenorValue,
             potonganTenor,
         }));

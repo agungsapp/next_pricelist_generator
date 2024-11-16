@@ -156,6 +156,7 @@ const FormDiskonCreate = () => {
                                     <input
                                         type="number"
                                         value={row.idMotor}
+                                        placeholder="motor"
                                         onChange={(
                                             e: ChangeEvent<HTMLInputElement>
                                         ) =>
@@ -172,6 +173,7 @@ const FormDiskonCreate = () => {
                                     <input
                                         type="number"
                                         value={row.idLeasing}
+                                        placeholder="leasing"
                                         onChange={(
                                             e: ChangeEvent<HTMLInputElement>
                                         ) =>
@@ -188,6 +190,7 @@ const FormDiskonCreate = () => {
                                     <input
                                         type="number"
                                         value={row.idKota}
+                                        placeholder="kota"
                                         onChange={(
                                             e: ChangeEvent<HTMLInputElement>
                                         ) =>
@@ -204,6 +207,7 @@ const FormDiskonCreate = () => {
                                     <input
                                         type="number"
                                         value={row.pengurangan}
+                                        placeholder="pengurangan"
                                         onChange={(
                                             e: ChangeEvent<HTMLInputElement>
                                         ) =>
@@ -220,6 +224,7 @@ const FormDiskonCreate = () => {
                                     <input
                                         type="number"
                                         value={row.diskonPromo}
+                                        placeholder="diskon promo"
                                         onChange={(
                                             e: ChangeEvent<HTMLInputElement>
                                         ) =>
@@ -236,6 +241,7 @@ const FormDiskonCreate = () => {
                                     <input
                                         type="text" // Mendukung input "11,17" untuk multi-tenor
                                         value={row.tenor}
+                                        placeholder="tenor"
                                         onChange={(
                                             e: ChangeEvent<HTMLInputElement>
                                         ) =>
@@ -252,6 +258,7 @@ const FormDiskonCreate = () => {
                                     <input
                                         type="number"
                                         value={row.potonganTenor}
+                                        placeholder="potongan tenor"
                                         onChange={(
                                             e: ChangeEvent<HTMLInputElement>
                                         ) =>
