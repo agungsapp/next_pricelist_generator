@@ -1,5 +1,3 @@
-// lib/diskon.ts
-
 "use server";
 
 import { z } from "zod";
@@ -9,64 +7,53 @@ import { redirect } from "next/navigation";
 
 const prisma = new PrismaClient();
 
-// Skema validasi untuk input data Diskon
 const DiskonSchema = z.object({
     idMotor: z.number().int(),
     idLeasing: z.number().int(),
     idKota: z.number().int(),
     pengurangan: z.number().positive(),
     diskonPromo: z.number().positive(),
-    tenor: z.union([z.number(), z.array(z.number())]), // Menerima angka atau array angka
-    potonganTenor: z.number().positive(),
+    tenor: z.array(z.number()), // Array angka untuk tenor
+    potonganTenor: z.number().nonnegative(),
 });
 
-export const saveDiskon = async (formData: FormData) => {
-    // Ambil semua data dari FormData sebagai string dan konversi ke tipe yang benar
-    const dataToValidate = {
-        idMotor: parseInt(formData.get("idMotor") as string, 10),
-        idLeasing: parseInt(formData.get("idLeasing") as string, 10),
-        idKota: parseInt(formData.get("idKota") as string, 10),
-        pengurangan: parseFloat(formData.get("pengurangan") as string),
-        diskonPromo: parseFloat(formData.get("diskonPromo") as string),
-        potonganTenor: parseFloat(formData.get("potonganTenor") as string),
-        tenor: (formData.get("tenor") as string)
-            .split(",")
-            .map((t) => parseInt(t.trim(), 10)) // Konversi tenor ke array angka
-            .filter((t) => !isNaN(t)), // Hilangkan nilai invalid
-    };
+export const saveDiskon = async (diskonData: any[]) => {
+    // Validasi semua record
+    const parsedData = diskonData.map((row) => DiskonSchema.safeParse(row));
+    const invalidRows = parsedData.filter((result) => !result.success);
 
-    const validatedFields = DiskonSchema.safeParse(dataToValidate);
-
-    if (!validatedFields.success) {
+    if (invalidRows.length > 0) {
         return {
-            Error: validatedFields.error.flatten().fieldErrors,
+            Error: invalidRows.map(
+                (result) => result.error.flatten().fieldErrors
+            ),
         };
     }
 
-    const {
-        idMotor,
-        idLeasing,
-        idKota,
-        pengurangan,
-        diskonPromo,
-        potonganTenor,
-        tenor,
-    } = validatedFields.data;
+    const entriesToSave = parsedData.flatMap((result) => {
+        if (!result.success) return []; // Skip jika ada error (seharusnya tidak ada karena sudah difilter)
+        const {
+            idMotor,
+            idLeasing,
+            idKota,
+            pengurangan,
+            diskonPromo,
+            tenor,
+            potonganTenor,
+        } = result.data;
 
-    // Hitung nilai diskon
-    const diskon = diskonPromo - pengurangan;
-
-    // Siapkan data untuk dimasukkan ke database
-    const entriesToSave = tenor.map((tenorValue) => ({
-        idMotor,
-        idLeasing,
-        idLokasi: idKota,
-        diskon,
-        diskonPromo,
-        diskonDealer: pengurangan,
-        tenor: tenorValue,
-        potonganTenor,
-    }));
+        const diskon = diskonPromo - pengurangan;
+        return tenor.map((tenorValue) => ({
+            idMotor,
+            idLeasing,
+            idLokasi: idKota,
+            diskon,
+            diskonPromo,
+            diskonDealer: pengurangan,
+            tenor: tenorValue,
+            potonganTenor,
+        }));
+    });
 
     try {
         await prisma.diskon.createMany({ data: entriesToSave });

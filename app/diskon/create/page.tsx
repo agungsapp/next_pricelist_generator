@@ -13,7 +13,7 @@ import React from "react";
 
 const DiskonCreate = () => {
     return (
-        <div className="w-full h-screen py-20 flex justify-center">
+        <div className="w-full  py-20 flex justify-center">
             <Card className="w-[80%]">
                 <CardHeader>
                     <CardTitle>Generate Diskon Motor</CardTitle>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     useReactTable,
     getCoreRowModel,
@@ -21,19 +21,33 @@ type Diskon = {
 };
 
 const DiskonPage = () => {
-    const [data, setData] = useState<Diskon[]>([
-        {
-            id: 1,
-            idMotor: 101,
-            idLeasing: 201,
-            idLokasi: 301,
-            diskon: 1000,
-            diskonPromo: 500,
-            diskonDealer: 500,
-            tenor: 12,
-            potonganTenor: 200,
-        },
-    ]);
+    const [data, setData] = useState<Diskon[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Fetch data dari API
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch("/api/diskon");
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch data");
+                }
+
+                const result = await response.json();
+                setData(result); // Set data dari API ke state
+            } catch (err) {
+                console.error("Error fetching diskon data:", err);
+                setError("Gagal mengambil data diskon.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const columnHelper = createColumnHelper<Diskon>();
 
@@ -76,42 +90,46 @@ const DiskonPage = () => {
     return (
         <div className="container mx-auto py-4">
             <h1 className="text-2xl font-bold mb-4">Daftar Diskon</h1>
-            <table className="table-auto border-collapse border border-gray-300 w-full">
-                <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <th
-                                    key={header.id}
-                                    className="border border-gray-300 px-4 py-2"
-                                >
-                                    {flexRender(
-                                        header.column.columnDef.header,
-                                        header.getContext()
-                                    )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                                <td
-                                    key={cell.id}
-                                    className="border border-gray-300 px-4 py-2"
-                                >
-                                    {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                    )}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            {loading && <p>Loading data...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            {!loading && !error && (
+                <table className="table-auto border-collapse border border-gray-300 w-full">
+                    <thead>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <tr key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <th
+                                        key={header.id}
+                                        className="border border-gray-300 px-4 py-2"
+                                    >
+                                        {flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                        )}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </thead>
+                    <tbody>
+                        {table.getRowModel().rows.map((row) => (
+                            <tr key={row.id}>
+                                {row.getVisibleCells().map((cell) => (
+                                    <td
+                                        key={cell.id}
+                                        className="border border-gray-300 px-4 py-2"
+                                    >
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
+                                        )}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
         </div>
     );
 };

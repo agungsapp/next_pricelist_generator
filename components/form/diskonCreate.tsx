@@ -69,17 +69,25 @@ const FormDiskonCreate = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        for (const row of rows) {
-            const formData = new FormData();
-            formData.append("idMotor", row.idMotor.toString());
-            formData.append("idLeasing", row.idLeasing.toString());
-            formData.append("idKota", row.idKota.toString());
-            formData.append("pengurangan", row.pengurangan.toString());
-            formData.append("diskonPromo", row.diskonPromo.toString());
-            formData.append("tenor", row.tenor); // Tenor sebagai string, ex: "11,17"
-            formData.append("potonganTenor", row.potonganTenor.toString());
+        const diskonData = rows.map((row) => ({
+            idMotor: row.idMotor,
+            idLeasing: row.idLeasing,
+            idKota: row.idKota,
+            pengurangan: row.pengurangan,
+            diskonPromo: row.diskonPromo,
+            potonganTenor: row.potonganTenor,
+            tenor: row.tenor
+                .split(",")
+                .map((t) => parseInt(t.trim(), 10))
+                .filter((t) => !isNaN(t)), // Konversi tenor ke array angka
+        }));
 
-            await saveDiskon(formData); // Panggil saveDiskon dengan formData
+        const result = await saveDiskon(diskonData); // Kirim semua data sekaligus
+        if (result?.Error) {
+            console.error("Error saving data:", result.Error);
+            alert("Gagal menyimpan data. Periksa log untuk detail.");
+        } else {
+            alert("Data berhasil disimpan!");
         }
     };
 
@@ -117,7 +125,7 @@ const FormDiskonCreate = () => {
             <button
                 onClick={handleSync}
                 disabled={isSyncing}
-                className={`bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ${
+                className={`bg-blue-500 ms-8 text-white px-4 py-2 rounded-md hover:bg-blue-600 ${
                     isSyncing ? "opacity-50 cursor-not-allowed" : ""
                 }`}
             >
